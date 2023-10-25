@@ -48,7 +48,7 @@ public class UCPConnectionProviderTest extends BaseCoreFunctionalTestCase {
 
 		try {
 			ucpProvider.getConnection();
-			System.out.println( "SQLException expected -- no more connections should have been available in the pool." );
+			fail( "SQLException expected -- no more connections should have been available in the pool." );
 		}
 		catch (SQLException e) {
 			// expected
@@ -64,7 +64,7 @@ public class UCPConnectionProviderTest extends BaseCoreFunctionalTestCase {
 
 		try {
 			ucpProvider.getConnection();
-			System.out.println( "Exception expected -- the pool should have been shutdown." );
+			fail( "Exception expected -- the pool should have been shutdown." );
 		}
 		catch (Exception e) {
 			// expected
