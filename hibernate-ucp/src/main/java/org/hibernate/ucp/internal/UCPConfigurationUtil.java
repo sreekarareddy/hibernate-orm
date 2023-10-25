@@ -26,7 +26,6 @@ public class UCPConfigurationUtil {
 		Properties ucpProps = new Properties();
 		copyProperty( AvailableSettings.AUTOCOMMIT, props, "autoCommit", ucpProps );
 
-		//copyProperty( AvailableSettings.DRIVER, props, "driverClassName", ucpProps );
 		copyProperty( AvailableSettings.URL, props, "URL", ucpProps );
 		copyProperty( AvailableSettings.USER, props, "user", ucpProps );
 		copyProperty( AvailableSettings.PASS, props, "password", ucpProps );
