@@ -19,34 +19,48 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 import org.hibernate.HibernateException;
+import org.hibernate.engine.jdbc.connections.internal.ConnectionProviderInitiator;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
+import org.hibernate.internal.util.config.ConfigurationHelper;
 import org.hibernate.service.UnknownUnwrapTypeException;
 import org.hibernate.service.spi.Configurable;
 import org.hibernate.service.spi.Stoppable;
 
 import org.jboss.logging.Logger;
 
-
+import oracle.ucp.UniversalConnectionPoolAdapter;
+import oracle.ucp.UniversalConnectionPoolException;
+import oracle.ucp.admin.UniversalConnectionPoolManager;
+import oracle.ucp.admin.UniversalConnectionPoolManagerImpl;
 import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceFactory;
+import org.hibernate.cfg.AvailableSettings;
+
 
 public class UCPConnectionProvider implements ConnectionProvider, Configurable, Stoppable {
 
 	private static final long serialVersionUID = 1L;
-
 	private static final Logger LOGGER = Logger.getLogger( "UCPConnectionProvider.class" );
-
 	private PoolDataSource ucpDS = null;
+	private UniversalConnectionPoolManager poolManager = null;
+	private static final String CONFIG_PREFIX = "hibernate.oracleucp.";
+	private boolean autoCommit;
+	private Integer isolation;
 
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void configure(Map props) throws HibernateException {
 		try {
 			LOGGER.trace( "Configuring oracle UCP" );
+
+			isolation = ConnectionProviderInitiator.extractIsolation( props );
+			autoCommit = ConfigurationHelper.getBoolean( AvailableSettings.AUTOCOMMIT, props );
+
+			UniversalConnectionPoolManager poolManager = UniversalConnectionPoolManagerImpl.
+				getUniversalConnectionPoolManager();
 			ucpDS = PoolDataSourceFactory.getPoolDataSource();
-			Properties ucpProps = UCPConfigurationUtil.loadConfiguration(props);
+			Properties ucpProps = getConfiguration(props);
 			configureDataSource(ucpDS, ucpProps);
-			  
 		}
 		catch (Exception e) {
 			LOGGER.debug( "oracle UCP Configuration failed" );
@@ -66,7 +80,7 @@ public class UCPConnectionProvider implements ConnectionProvider, Configurable, 
 			final String methodName = "set" + propName.substring(0, 1).toUpperCase(Locale.ENGLISH) + propName.substring(1);
 			Method writeMethod = methods.stream().filter(m -> m.getName().equals(methodName) && m.getParameterCount() == 1).findFirst().orElse(null);
 			if (writeMethod == null) {
-				throw new RuntimeException(String.format("Property %s does not exist on target %s", propName, PoolDataSource.class));
+				throw new RuntimeException("Property " + propName + " does not exist on target " + PoolDataSource.class);
 			}
 	
 			try {
@@ -98,7 +112,7 @@ public class UCPConnectionProvider implements ConnectionProvider, Configurable, 
 									connProps.setProperty(nvPair[0], nvPair[1]);
 								}
 
-								ucpDS.setConnectionProperties(connProps);
+								writeMethod.invoke(ucpDS, connProps);
 							}
 					}
 					else {
@@ -112,6 +126,33 @@ public class UCPConnectionProvider implements ConnectionProvider, Configurable, 
 		}
 	}
 
+	private Properties getConfiguration(Map<?,?> props) {
+		Properties ucpProps = new Properties();
+		
+		copyProperty( AvailableSettings.URL, props, "URL", ucpProps );
+		copyProperty( AvailableSettings.USER, props, "user", ucpProps );
+		copyProperty( AvailableSettings.PASS, props, "password", ucpProps );
+		
+		for ( Object keyo : props.keySet() ) {
+			if ( !(keyo instanceof String) ) {
+				continue;
+			}
+			String key = (String) keyo;
+			if ( key.startsWith( CONFIG_PREFIX ) ) {
+				ucpProps.setProperty( key.substring( CONFIG_PREFIX.length() ), (String) props.get( key ) );
+			}
+		}
+		
+		return ucpProps;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	private static void copyProperty(String srcKey, Map src, String dstKey, Properties dst) {
+		if ( src.containsKey( srcKey ) ) {
+			dst.setProperty( dstKey, (String) src.get( srcKey ) );
+		}
+	}
+
 	// *************************************************************************
 	// ConnectionProvider
 	// *************************************************************************
@@ -121,6 +162,13 @@ public class UCPConnectionProvider implements ConnectionProvider, Configurable, 
 		Connection conn = null;
 		if ( ucpDS != null ) {
 			conn = ucpDS.getConnection();
+			if ( isolation != null ) {
+				conn.setTransactionIsolation( isolation );
+			}
+
+			if ( conn.getAutoCommit() != autoCommit ) {
+				conn.setAutoCommit( autoCommit );
+			}
 		}
 
 		return conn;
@@ -161,7 +209,16 @@ public class UCPConnectionProvider implements ConnectionProvider, Configurable, 
 
 	@Override
 	public void stop() {
-		
+		if(this.ucpDS!=null && ucpDS.getConnectionPoolName() != null) {
+			try {
+				UniversalConnectionPoolManager poolManager = UniversalConnectionPoolManagerImpl.
+						getUniversalConnectionPoolManager();
+				poolManager.destroyConnectionPool(ucpDS.getConnectionPoolName());
+			}
+			catch (UniversalConnectionPoolException e) {
+				LOGGER.debug("Unable to destroy UCP connection pool");
+			}
+		}
 	}
 	
 }

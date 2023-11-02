@@ -68,7 +68,7 @@ public class UCPConnectionProviderTest extends BaseCoreFunctionalTestCase {
 		}
 		catch (Exception e) {
 			// expected
-			assertTrue( e.getMessage().contains( "has been closed" ) );
+			assertTrue( e.getMessage().contains( "Failed to get a connection" ) );
 		}
 	}
 }
