@@ -631,6 +631,23 @@ public class PostgreSQLDialect extends Dialect {
 		functionFactory.listagg_stringAgg( "varchar" );
 		functionFactory.array_casting();
 		functionFactory.arrayAggregate();
+		functionFactory.arrayContains_operator();
+		functionFactory.arrayContainsNull_array_position();
+		functionFactory.arrayPosition_postgresql();
+		functionFactory.arrayLength_cardinality();
+		functionFactory.arrayConcat_postgresql();
+		functionFactory.arrayPrepend_postgresql();
+		functionFactory.arrayAppend_postgresql();
+		functionFactory.arrayContainsAll_operator();
+		functionFactory.arrayContainsAny_operator();
+		functionFactory.arrayContainsAllNullable_operator();
+		functionFactory.arrayContainsAnyNullable_operator();
+		functionFactory.arrayGet_bracket();
+		functionFactory.arraySet_unnest();
+		functionFactory.arrayRemove();
+		functionFactory.arrayRemoveIndex_unnest( true );
+		functionFactory.arraySlice_operator();
+		functionFactory.arrayReplace();
 
 		functionFactory.makeDateTimeTimestamp();
 		// Note that PostgreSQL doesn't support the OVER clause for ordered set-aggregate functions

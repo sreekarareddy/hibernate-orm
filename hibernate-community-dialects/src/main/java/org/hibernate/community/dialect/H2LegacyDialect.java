@@ -372,6 +372,22 @@ public class H2LegacyDialect extends Dialect {
 				functionFactory.listagg( null );
 				functionFactory.array();
 				functionFactory.arrayAggregate();
+				functionFactory.arrayContains();
+				functionFactory.arrayContainsNull();
+				functionFactory.arrayLength_cardinality();
+				functionFactory.arrayConcat_operator();
+				functionFactory.arrayPrepend_operator();
+				functionFactory.arrayAppend_operator();
+				functionFactory.arrayContainsAll_h2();
+				functionFactory.arrayContainsAny_h2();
+				functionFactory.arrayContainsAllNullable_h2();
+				functionFactory.arrayContainsAnyNullable_h2();
+				functionFactory.arrayGet_h2();
+				functionFactory.arraySet_h2();
+				functionFactory.arrayRemove_h2();
+				functionFactory.arrayRemoveIndex_h2();
+				functionFactory.arraySlice();
+				functionFactory.arrayReplace_h2();
 			}
 			else {
 				// Use group_concat until 2.x as listagg was buggy

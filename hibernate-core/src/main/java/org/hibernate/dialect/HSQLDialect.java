@@ -189,6 +189,23 @@ public class HSQLDialect extends Dialect {
 		functionFactory.listagg_groupConcat();
 		functionFactory.array();
 		functionFactory.arrayAggregate();
+		functionFactory.arrayContains_hsql();
+		functionFactory.arrayContainsNull_hsql();
+		functionFactory.arrayPosition_hsql();
+		functionFactory.arrayLength_cardinality();
+		functionFactory.arrayConcat_operator();
+		functionFactory.arrayPrepend_operator();
+		functionFactory.arrayAppend_operator();
+		functionFactory.arrayContainsAll_hsql();
+		functionFactory.arrayContainsAny_hsql();
+		functionFactory.arrayContainsAllNullable_hsql();
+		functionFactory.arrayContainsAnyNullable_hsql();
+		functionFactory.arrayGet_unnest();
+		functionFactory.arraySet_hsql();
+		functionFactory.arrayRemove_hsql();
+		functionFactory.arrayRemoveIndex_unnest( false );
+		functionFactory.arraySlice_unnest();
+		functionFactory.arrayReplace_unnest();
 	}
 
 	@Override

@@ -93,7 +93,6 @@ import static org.hibernate.type.SqlTypes.LONG32VARCHAR;
 import static org.hibernate.type.SqlTypes.NCHAR;
 import static org.hibernate.type.SqlTypes.NVARCHAR;
 import static org.hibernate.type.SqlTypes.OTHER;
-import static org.hibernate.type.SqlTypes.TIMESTAMP_UTC;
 import static org.hibernate.type.SqlTypes.UUID;
 import static org.hibernate.type.SqlTypes.VARBINARY;
 import static org.hibernate.type.SqlTypes.VARCHAR;
@@ -312,6 +311,22 @@ public class H2Dialect extends Dialect {
 		functionFactory.hypotheticalOrderedSetAggregates();
 		functionFactory.array();
 		functionFactory.arrayAggregate();
+		functionFactory.arrayContains();
+		functionFactory.arrayContainsNull();
+		functionFactory.arrayLength_cardinality();
+		functionFactory.arrayConcat_operator();
+		functionFactory.arrayPrepend_operator();
+		functionFactory.arrayAppend_operator();
+		functionFactory.arrayContainsAll_h2();
+		functionFactory.arrayContainsAny_h2();
+		functionFactory.arrayContainsAllNullable_h2();
+		functionFactory.arrayContainsAnyNullable_h2();
+		functionFactory.arrayGet_h2();
+		functionFactory.arraySet_h2();
+		functionFactory.arrayRemove_h2();
+		functionFactory.arrayRemoveIndex_h2();
+		functionFactory.arraySlice();
+		functionFactory.arrayReplace_h2();
 	}
 
 	@Override

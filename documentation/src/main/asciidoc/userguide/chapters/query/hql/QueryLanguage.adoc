@@ -5,6 +5,7 @@
 :example-dir-model: {testing-project-dir}/src/main/java/org/hibernate/testing/orm/domain/userguide
 :core-project-dir: {root-project-dir}/hibernate-core
 :example-dir-hql: {core-project-dir}/src/test/java/org/hibernate/orm/test/hql
+:array-example-dir-hql: {core-project-dir}/src/test/java/org/hibernate/orm/test/function/array
 :extrasdir: extras
 
 This chapter describes Hibernate Query Language (HQL) and Jakarta Persistence Query Language (JPQL).
@@ -1107,6 +1108,256 @@ Finally, the following functions evaluate the id, version, or natural id of an e
 Mainly useful with <<associations-not-found,`@NotFound` mappings>>. | &cross;
 |===
 
+[[hql-functions-arrays]]
+==== Functions for dealing with arrays
+
+The following functions deal with SQL array types, which are not supported on every database.
+
+[[hql-array-functions]]
+|===
+| Function | Purpose
+
+| `array()` | Creates an array based on the passed arguments
+| `array_contains()` | Whether an array contains an element
+| `array_contains_null()` | Whether an array contains a null
+| `array_position()` | Determines the position of an element in an array
+| `array_length()` | Determines the length of an array
+| `array_concat()` | Concatenates array with each other in order
+| `array_prepend()` | Prepends element to array
+| `array_append()` | Appends element to array
+| `array_contains_all()` | Determines if one array holds all elements of another array
+| `array_contains_all_nullable()` | Determines if one array holds all elements of another array, supporting null elements
+| `array_contains_any()` | Determines if one array holds at least one element of another array
+| `array_contains_any_nullable()` | Determines if one array holds at least one element of another array, supporting null elements
+| `array_get()` | Accesses the element of an array by index
+| `array_set()` | Creates array copy with given element at given index
+| `array_remove()` | Creates array copy with given element removed
+| `array_slice()` | Creates a sub-array of the based on lower and upper index
+| `array_replace()` | Creates array copy replacing a given element with another
+|===
+
+===== `array()`
+
+Creates an array based on the passed arguments, and infers the array type from the context if possible.
+
+[[hql-array-constructor-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayConstructorTest.java[tags=hql-array-example]
+----
+====
+
+[[hql-array-contains-functions]]
+===== `array_contains()` and `array_contains_null()`
+
+Both functions return `null` if the first argument, the array, is null, yet the result of the `array_contains` function
+is undefined when the second argument, the element to search, is `null`.
+The `array_contains_null` function only takes a single argument, the array, and will return whether the array contains a `null` element.
+
+[[hql-array-contains-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayContainsTest.java[tags=hql-array-contains-example]
+----
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayContainsTest.java[tags=hql-array-contains-null-example]
+----
+====
+
+[[hql-array-position-functions]]
+===== `array_position()`
+
+Returns the 1-based position of an element in the array. Returns 0 if the element is not found and `null` if the array is `null`.
+
+[[hql-array-position-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayPositionTest.java[tags=hql-array-position-example]
+----
+====
+
+[[hql-array-length-functions]]
+===== `array_length()`
+
+Returns size of the passed array. Returns `null` if the array is `null`.
+
+[[hql-array-length-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayLengthTest.java[tags=hql-array-length-example]
+----
+====
+
+[[hql-array-concat-functions]]
+===== `array_concat()`
+
+Concatenates arrays with each other in order. Returns `null` if one of the arguments is `null`.
+
+[[hql-array-concat-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayConcatTest.java[tags=hql-array-concat-example]
+----
+====
+
+[[hql-array-prepend-functions]]
+===== `array_prepend()`
+
+Prepends element to array. Returns `null` if the array argument is `null`.
+
+[[hql-array-prepend-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayPrependTest.java[tags=hql-array-prepend-example]
+----
+====
+
+[[hql-array-append-functions]]
+===== `array_append()`
+
+Appends element to array. Returns `null` if the array argument is `null`.
+
+[[hql-array-append-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayAppendTest.java[tags=hql-array-append-example]
+----
+====
+
+[[hql-array-contains-quantified-functions]]
+===== `array_contains_all()` and `array_contains_any()`
+
+Checks if the first array argument contains all or any of the elements of the second array argument.
+Returns `null` if either of the arguments is `null`. The result of the functions
+is undefined when the second array argument contains a `null`.
+
+[[hql-array-contains-all-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayContainsAllTest.java[tags=hql-array-contains-all-example]
+----
+====
+
+[[hql-array-contains-any-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayContainsAnyTest.java[tags=hql-array-contains-any-example]
+----
+====
+
+[[hql-array-contains-quantified-functions]]
+===== `array_contains_all_nullable()` & `array_contains_any_nullable()`
+
+Checks if the first array argument contains all or any of the elements of the second array argument.
+Returns `null` if either of the arguments is `null`. Contrary to `array_contains_all()` and `array_contains_any()`,
+these functions use the `distinct from` operator to also support searching for `null` elements.
+
+[[hql-array-contains-all-nullable-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayContainsAllTest.java[tags=hql-array-contains-all-nullable-example]
+----
+====
+
+[[hql-array-contains-any-nullable-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayContainsAnyTest.java[tags=hql-array-contains-any-nullable-example]
+----
+====
+
+[[hql-array-get-functions]]
+===== `array_get()`
+
+Returns the element of an array at the given 1-based index. Returns `null` if either of the arguments is `null`,
+and also if the index is bigger than the array length.
+
+[[hql-array-get-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayGetTest.java[tags=hql-array-get-example]
+----
+====
+
+[[hql-array-set-functions]]
+===== `array_set()`
+
+Returns an array copy with the given element placed at the given 1-based index, filling up prior slots with `null` if necessary.
+
+[[hql-array-set-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArraySetTest.java[tags=hql-array-set-example]
+----
+====
+
+[[hql-array-remove-functions]]
+===== `array_remove()`
+
+Returns an array copy with the given element removed from the array. Allows removal of `null` elements.
+
+[[hql-array-remove-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayRemoveTest.java[tags=hql-array-remove-example]
+----
+====
+
+[[hql-array-remove-index-functions]]
+===== `array_remove_index()`
+
+Returns an array copy with the element at the given index removed from the array.
+
+[[hql-array-remove-index-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayRemoveIndexTest.java[tags=hql-array-remove-index-example]
+----
+====
+
+[[hql-array-slice-functions]]
+===== `array_slice()`
+
+Returns the sub-array as specified by the given start and end index. Returns `null` if any of the arguments is `null`
+and also if the index is out of bounds.
+
+[[hql-array-remove-index-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayRemoveIndexTest.java[tags=hql-array-remove-index-example]
+----
+====
+
+[[hql-array-replace-functions]]
+===== `array_replace()`
+
+Returns an array copy which has elements matching the second argument replaced by the third argument.
+
+[[hql-array-replace-example]]
+====
+[source, JAVA, indent=0]
+----
+include::{array-example-dir-hql}/ArrayReplaceTest.java[tags=hql-array-replace-example]
+----
+====
+
 [[hql-user-defined-functions]]
 ==== Native and user-defined functions
 
@@ -2194,7 +2445,7 @@ The following ordered set aggregate functions are available on many platforms:
 
 | Inverse distribution functions | `mode()`, `percentile_cont()`, `percentile_disc()`
 | Hypothetical set functions | `rank()`, `dense_rank()`, `percent_rank()`, `cume_dist()`
-| Other | `listagg()`
+| Other | `listagg()`, `array_agg`
 |===
 
 Actually, the most widely-supported ordered set aggregate function is one which builds a string by concatenating the values within a group.

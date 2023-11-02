@@ -73,8 +73,10 @@ public class ArrayConstructorTest {
 	@Test
 	public void testMultipleArguments(SessionFactoryScope scope) {
 		scope.inSession( em -> {
+			//tag::hql-array-example[]
 			List<EntityWithArrays> results = em.createQuery( "from EntityWithArrays e where e.theArray is not distinct from array('abc', null, 'def')", EntityWithArrays.class )
 					.getResultList();
+			//end::hql-array-example[]
 			assertEquals( 1, results.size() );
 			assertEquals( 2L, results.get( 0 ).getId() );
 		} );
