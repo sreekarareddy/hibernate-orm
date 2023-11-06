@@ -162,7 +162,7 @@ public class UCPConnectionProvider implements ConnectionProvider, Configurable, 
 		Connection conn = null;
 		if ( ucpDS != null ) {
 			conn = ucpDS.getConnection();
-			if ( isolation != null ) {
+			if ( isolation != null && isolation != conn.getTransactionIsolation()) {
 				conn.setTransactionIsolation( isolation );
 			}
 
